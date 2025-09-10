@@ -7,15 +7,13 @@
 #include "pico/time.h"
 #include "hardware/gpio.h"
 #include "hardware/pwm.h"
- 
-#define GPIO_PWM_NUM 17
+
+#define GPIO_PWM_NUM 15
 
 int main() {
- 
+
     bi_decl(bi_program_description("PWM demonstration"));
     bi_decl(bi_1pin_with_func(GPIO_PWM_NUM, GPIO_FUNC_PWM));
-    bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN,
-                               PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
     stdio_init_all();
     sleep_ms(1000);
 
@@ -24,11 +22,11 @@ int main() {
     uint slice_num = pwm_gpio_to_slice_num(GPIO_PWM_NUM);
     uint channel = pwm_gpio_to_channel(GPIO_PWM_NUM);
 
-    // System clock is 125MHz -- divide down to use 1MHz for PWM generation
-    pwm_set_clkdiv_int_frac(slice_num, 125, 0);
+    // Divide system clock to end up with 1MHz
+    pwm_set_clkdiv_int_frac(slice_num, SYS_CLK_HZ / 1000000, 0);
 
     // A servo frame is 50ms = (1 / (1MHz / 20000))
-    pwm_set_wrap(slice_num, 20000);
+    pwm_set_wrap(slice_num, 50000);
 
     // Start with servo centered which is a high time of 1500us
     pwm_set_chan_level(slice_num, channel, 1500);
